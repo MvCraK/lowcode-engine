@@ -1,20 +1,36 @@
-import Detecting from './detecting';
-import DocumentModel from './document-model';
-import Event, { getEvent } from './event';
-import History from './history';
-import Material from './material';
-import Node from './node';
-import NodeChildren from './node-children';
-import Project from './project';
-import Prop from './prop';
-import Selection from './selection';
-import Setters from './setters';
-import Hotkey from './hotkey';
-import Skeleton from './skeleton';
-import Dragon from './dragon';
-import SettingPropEntry from './setting-prop-entry';
-import SettingTopEntry from './setting-top-entry';
-import Common from './common';
+import {
+  Detecting,
+  DocumentModel,
+  History,
+  Node,
+  NodeChildren,
+  Prop,
+  Selection,
+  Dragon,
+  SettingTopEntry,
+  Clipboard,
+  SettingField,
+  Window,
+  SkeletonItem,
+} from './model';
+import {
+  Project,
+  Material,
+  Logger,
+  Plugins,
+  Skeleton,
+  Setters,
+  Hotkey,
+  Common,
+  getEvent,
+  Event,
+  Canvas,
+  Workspace,
+  SimulatorHost,
+  Config,
+  CommonUI,
+  Command,
+} from './api';
 
 export * from './symbols';
 
@@ -38,10 +54,22 @@ export {
   Selection,
   Setters,
   Hotkey,
+  Window,
   Skeleton,
-  SettingPropEntry,
+  SettingField as SettingPropEntry,
   SettingTopEntry,
   Dragon,
   Common,
   getEvent,
+  Plugins,
+  Logger,
+  Canvas,
+  Workspace,
+  Clipboard,
+  SimulatorHost,
+  Config,
+  SettingField,
+  SkeletonItem,
+  CommonUI,
+  Command,
 };

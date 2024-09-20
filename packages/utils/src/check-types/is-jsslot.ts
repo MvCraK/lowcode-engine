@@ -1,5 +1,9 @@
-import { JSSlot } from '@alilc/lowcode-types';
+import { IPublicTypeJSSlot } from '@alilc/lowcode-types';
+import { isObject } from '../is-object';
 
-export function isJSSlot(data: any): data is JSSlot {
-  return data && data.type === 'JSSlot';
+export function isJSSlot(data: any): data is IPublicTypeJSSlot {
+  if (!isObject(data)) {
+    return false;
+  }
+  return data.type === 'JSSlot';
 }

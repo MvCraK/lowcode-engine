@@ -1,6 +1,10 @@
-import { ComponentMap, ProCodeComponentType } from '@alilc/lowcode-types';
+import { IPublicTypeComponentMap, IPublicTypeProCodeComponent } from '@alilc/lowcode-types';
+import { isObject } from '../is-object';
 
+export function isProCodeComponentType(desc: IPublicTypeComponentMap): desc is IPublicTypeProCodeComponent {
+  if (!isObject(desc)) {
+    return false;
+  }
 
-export function isProCodeComponentType(desc: ComponentMap): desc is ProCodeComponentType {
   return 'package' in desc;
 }

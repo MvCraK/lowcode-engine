@@ -10,6 +10,7 @@ import { SimulatorRendererContainer, DocumentInstance } from './renderer';
 import { host } from './host';
 import { isRendererDetached } from './utils/misc';
 import './renderer.less';
+import { createIntl } from './locale';
 
 // patch cloneElement avoid lost keyProps
 const originCloneElement = window.React.cloneElement;
@@ -130,6 +131,7 @@ class Renderer extends Component<{
   documentInstance: DocumentInstance;
 }> {
   startTime: number | null = null;
+  schemaChangedSymbol = false;
 
   componentDidUpdate() {
     this.recordTime();
@@ -139,7 +141,7 @@ class Renderer extends Component<{
     if (this.startTime) {
       const time = Date.now() - this.startTime;
       const nodeCount = host.designer.currentDocument?.getNodeCount?.();
-      host.designer.editor?.emit(GlobalEvent.Node.Rerender, {
+      host.designer.editor?.eventBus.emit(GlobalEvent.Node.Rerender, {
         componentName: 'Renderer',
         type: 'All',
         time,
@@ -151,8 +153,6 @@ class Renderer extends Component<{
   componentDidMount() {
     this.recordTime();
   }
-
-  schemaChangedSymbol = false;
 
   getSchemaChangedSymbol = () => {
     return this.schemaChangedSymbol;
@@ -170,7 +170,12 @@ class Renderer extends Component<{
     this.startTime = Date.now();
     this.schemaChangedSymbol = false;
 
-    if (!container.autoRender || isRendererDetached()) return null;
+    if (!container.autoRender || isRendererDetached()) {
+      return null;
+    }
+
+    const { intl } = createIntl(locale);
+
     return (
       <LowCodeRenderer
         locale={locale}
@@ -190,6 +195,7 @@ class Renderer extends Component<{
         thisRequiredInJSE={host.thisRequiredInJSE}
         notFoundComponent={host.notFoundComponent}
         faultComponent={host.faultComponent}
+        faultComponentMap={host.faultComponentMap}
         customCreateElement={(Component: any, props: any, children: any) => {
           const { __id, ...viewProps } = props;
           viewProps.componentId = __id;
@@ -205,12 +211,12 @@ class Renderer extends Component<{
             (children == null || (Array.isArray(children) && !children.length)) &&
             (!viewProps.style || Object.keys(viewProps.style).length === 0)
           ) {
-            let defaultPlaceholder = '拖拽组件或模板到这里';
+            let defaultPlaceholder = intl('Drag and drop components or templates here');
             const lockedNode = getClosestNode(leaf, (node) => {
               return node?.getExtraProp('isLocked')?.getValue() === true;
             });
             if (lockedNode) {
-              defaultPlaceholder = '锁定元素及子元素无法编辑';
+              defaultPlaceholder = intl('Locked elements and child elements cannot be edited');
             }
             children = (
               <div className={cn('lc-container-placeholder', { 'lc-container-locked': !!lockedNode })} style={viewProps.placeholderStyle}>

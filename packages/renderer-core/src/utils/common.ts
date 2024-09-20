@@ -1,20 +1,15 @@
 /* eslint-disable no-console */
 /* eslint-disable no-new-func */
 import logger from './logger';
-import { RootSchema, NodeSchema, JSSlot } from '@alilc/lowcode-types';
+import { IPublicTypeRootSchema, IPublicTypeNodeSchema, IPublicTypeJSSlot } from '@alilc/lowcode-types';
 import { isI18nData, isJSExpression } from '@alilc/lowcode-utils';
 import { isEmpty } from 'lodash';
 import IntlMessageFormat from 'intl-messageformat';
 import pkg from '../../package.json';
-import * as ReactIs from 'react-is';
-import { default as ReactPropTypesSecret } from 'prop-types/lib/ReactPropTypesSecret';
-import { default as factoryWithTypeCheckers } from 'prop-types/factoryWithTypeCheckers';
 
 (window as any).sdkVersion = pkg.version;
 
 export { pick, isEqualWith as deepEqual, cloneDeep as clone, isEmpty, throttle, debounce } from 'lodash';
-
-const PropTypes2 = factoryWithTypeCheckers(ReactIs.isElement, true);
 
 const EXPRESSION_TYPE = {
   JSEXPRESSION: 'JSExpression',
@@ -29,7 +24,7 @@ const EXPRESSION_TYPE = {
  * @name isSchema
  * @returns boolean
  */
-export function isSchema(schema: any): schema is NodeSchema {
+export function isSchema(schema: any): schema is IPublicTypeNodeSchema {
   if (isEmpty(schema)) {
     return false;
   }
@@ -58,7 +53,7 @@ export function isSchema(schema: any): schema is NodeSchema {
  * @param schema
  * @returns boolean
  */
-export function isFileSchema(schema: NodeSchema): schema is RootSchema {
+export function isFileSchema(schema: IPublicTypeNodeSchema): schema is IPublicTypeRootSchema {
   if (!isSchema(schema)) {
     return false;
   }
@@ -97,7 +92,7 @@ export function getFileCssName(fileName: string) {
  * check if a object is type of JSSlot
  * @returns string
  */
-export function isJSSlot(obj: any): obj is JSSlot {
+export function isJSSlot(obj: any): obj is IPublicTypeJSSlot {
   if (!obj) {
     return false;
   }
@@ -157,6 +152,7 @@ export function canAcceptsRef(Comp: any) {
   // eslint-disable-next-line max-len
   return Comp?.$$typeof === REACT_FORWARD_REF_TYPE || Comp?.prototype?.isReactComponent || Comp?.prototype?.setState || Comp._forwardRef;
 }
+
 /**
  * transform array to a object
  * @param arr array to be transformed
@@ -182,32 +178,6 @@ export function transformArrayToMap(arr: any[], key: string, overwrite = true) {
   return res;
 }
 
-export function checkPropTypes(value: any, name: string, rule: any, componentName: string) {
-  let ruleFunction = rule;
-  if (typeof rule === 'string') {
-    ruleFunction = new Function(`"use strict"; const PropTypes = arguments[0]; return ${rule}`)(PropTypes2);
-  }
-  if (!ruleFunction || typeof ruleFunction !== 'function') {
-    console.warn('checkPropTypes should have a function type rule argument');
-    return true;
-  }
-  const err = ruleFunction(
-    {
-      [name]: value,
-    },
-    name,
-    componentName,
-    'prop',
-    null,
-    ReactPropTypesSecret,
-  );
-  if (err) {
-    console.warn(err);
-  }
-  return !err;
-}
-
-
 /**
  * transform string to a function
  * @param str function in string form
@@ -230,7 +200,26 @@ export function transformStringToFunction(str: string) {
  * @param self scope object
  * @returns funtion
  */
-export function parseExpression(str: any, self: any, thisRequired = false) {
+
+function parseExpression(options: {
+  str: any; self: any; thisRequired?: boolean; logScope?: string;
+}): any;
+function parseExpression(str: any, self: any, thisRequired?: boolean): any;
+function parseExpression(a: any, b?: any, c = false) {
+  let str;
+  let self;
+  let thisRequired;
+  let logScope;
+  if (typeof a === 'object' && b === undefined) {
+    str = a.str;
+    self = a.self;
+    thisRequired = a.thisRequired;
+    logScope = a.logScope;
+  } else {
+    str = a;
+    self = b;
+    thisRequired = c;
+  }
   try {
     const contextArr = ['"use strict";', 'var __self = arguments[0];'];
     contextArr.push('return ');
@@ -250,10 +239,14 @@ export function parseExpression(str: any, self: any, thisRequired = false) {
     const code = `with(${thisRequired ? '{}' : '$scope || {}'}) { ${tarStr} }`;
     return new Function('$scope', code)(self);
   } catch (err) {
-    logger.error('parseExpression.error', err, str, self?.__self ?? self);
+    logger.error(`${logScope || ''} parseExpression.error`, err, str, self?.__self ?? self);
     return undefined;
   }
 }
+
+export {
+  parseExpression,
+};
 
 export function parseThisRequiredExpression(str: any, self: any) {
   return parseExpression(str, self, true);
@@ -320,11 +313,17 @@ export function forEach(targetObj: any, fn: any, context?: any) {
 
 interface IParseOptions {
   thisRequiredInJSE?: boolean;
+  logScope?: string;
 }
 
 export function parseData(schema: unknown, self: any, options: IParseOptions = {}): any {
   if (isJSExpression(schema)) {
-    return parseExpression(schema, self, options.thisRequiredInJSE);
+    return parseExpression({
+      str: schema,
+      self,
+      thisRequired: options.thisRequiredInJSE,
+      logScope: options.logScope,
+    });
   } else if (isI18nData(schema)) {
     return parseI18n(schema, self);
   } else if (typeof schema === 'string') {

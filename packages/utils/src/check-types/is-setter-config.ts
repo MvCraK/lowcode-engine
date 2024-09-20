@@ -1,7 +1,10 @@
-import { SetterConfig } from '@alilc/lowcode-types';
+import { IPublicTypeSetterConfig } from '@alilc/lowcode-types';
 import { isCustomView } from './is-custom-view';
+import { isObject } from '../is-object';
 
-
-export function isSetterConfig(obj: any): obj is SetterConfig {
-  return obj && typeof obj === 'object' && 'componentName' in obj && !isCustomView(obj);
+export function isSetterConfig(obj: any): obj is IPublicTypeSetterConfig {
+  if (!isObject(obj)) {
+    return false;
+  }
+  return 'componentName' in obj && !isCustomView(obj);
 }

@@ -54,13 +54,13 @@ sidebar_position: 0
 
 ```html
 <!-- 低代码引擎的页面框架样式 -->
-<link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@latest/dist/css/engine-core.css" />
+<link rel="stylesheet" href="https://uipaas-assets.com/prod/npm/@alilc/lowcode-engine/1.0.18/dist/css/engine-core.css" />
 <!-- Fusion Next 控件样式 -->
 <link rel="stylesheet" href="https://g.alicdn.com/code/lib/alifd__next/1.23.24/next.min.css">
 <!-- 低代码引擎的页面主题样式，可以替换为 theme-lowcode-dark -->
 <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alifd/theme-lowcode-light/0.2.0/next.min.css">
 <!-- 低代码引擎官方扩展的样式 -->
-<link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@latest/dist/css/engine-ext.css" />
+<link rel="stylesheet" href="https://uipaas-assets.com/prod/npm/@alilc/lowcode-engine-ext/1.0.5/dist/css/engine-ext.css" />
 
 <!-- React，可替换为 production 包 -->
 <script src="https://g.alicdn.com/code/lib/react/16.14.0/umd/react.development.js"></script>
@@ -76,11 +76,12 @@ sidebar_position: 0
 <!-- Fusion Next 的主包，低代码编辑器的依赖 -->
 <script src="https://g.alicdn.com/code/lib/alifd__next/1.23.24/next.min.js"></script>
 <!-- 低代码引擎的主包 -->
-<script crossorigin="anonymous" src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@latest/dist/js/engine-core.js"></script>
+<script crossorigin="anonymous" src="https://uipaas-assets.com/prod/npm/@alilc/lowcode-engine/1.0.18/dist/js/engine-core.js"></script>
 <!-- 低代码引擎官方扩展的主包 -->
-<script crossorigin="anonymous" src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@latest/dist/js/engine-ext.js"></script>
+<script crossorigin="anonymous" src="https://uipaas-assets.com/prod/npm/@alilc/lowcode-engine-ext/1.0.5/dist/js/engine-ext.js"></script>
 ```
-> 注：如果 unpkg 的服务比较缓慢，您可以使用 alicdn 来获得确定版本的低代码引擎，如对于引擎的 1.0.1 版本，可用 [https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.1/dist/js/engine-core.js](https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.1/dist/js/engine-core.js)
+> 注：如果 unpkg 的服务比较缓慢，您可以使用官方 CDN 来获得确定版本的低代码引擎，如对于引擎的 1.0.18 版本，可用以下官方 CDN 替代
+> - [https://uipaas-assets.com/prod/npm/@alilc/lowcode-engine/1.0.18/dist/js/engine-core.js](https://uipaas-assets.com/prod/npm/@alilc/lowcode-engine/1.0.18/dist/js/engine-core.js)
 
 
 ### 配置打包
@@ -103,8 +104,6 @@ sidebar_position: 0
 ```
 
 ### 初始化低代码编辑器
-
-#### 方法 2.1 使用 init 进行初始化
 
 正确引入后，我们可以直接通过 window 上的变量进行引用，如 `window.AliLowCodeEngine.init`。您可以直接通过此方式初始化低代码引擎：
 
@@ -142,60 +141,6 @@ init 的功能包括但不限于：
 3. 初始化 Workbench；
 
 > 本节中的低代码编辑器例子可以在 demo 中找到：[https://github.com/alibaba/lowcode-demo/blob/main/demo-general/src/index.ts](https://github.com/alibaba/lowcode-demo/blob/main/demo-general/src/index.ts)
-
-
-#### 方法 2.2 使用 skeletonCabin.Workbench 方式初始化
-
-`init()` 内部会调用 `ReactDOM.render()` 函数，因此这样初始化的内容没有办法与外部的 React 组件进行通信，也就没有办法在一些自定义的 plugin 中获取 redux 上的全局数据等内容。
-
-因此，这种场景下您可以通过 `skeletonCabin.Workbench` 进行初始化。
-
-> 注：**不需要**同时使用 2.1 和 2.2 的方法。根据使用场景，当且只当有需要插件和外界进行一定通信时，才需要使用 2.2 提供的方法。
-
-
-```javascript
-import React, { useState, useEffect } from 'react';
-import { project, plugins, common, skeleton } from '@alilc/lowcode-engine';
-
-// 此处略去若干依赖引用
-
-async function registerPlugins() {
-  // 此处略去若干插件注册
-}
-function EditorView() {
-  /** 插件是否已初始化成功，因为必须要等插件初始化后才能渲染 Workbench */
-  const [hasPluginInited, setHasPluginInited] = useState(false);
-
-  useEffect(() => {
-    plugins.init().then(() => {
-      setHasPluginInited(true);
-    }).catch(err => console.error(err));
-  }, []);
-
-  if (!hasPluginInited) {
-    return null;
-  }
-  const Workbench = common.skeletonCabin.Workbench;
-  return <Workbench />;
-}
-
-(async function main() {
-  await registerPlugins();
-  config.setConfig({
-    enableCondition: true,
-    enableCanvasLock: true,
-    supportVariableGlobally: true,
-    requestHandlersMap: {
-      fetch: createFetchHandler()
-    }
-  });
-
-  ReactDOM.render(<EditorView />, document.getElementById('lce-container')!);
-})();
-```
-
-> 本节中的低代码编辑器类似的例子可以在 demo 中找到：[https://github.com/alibaba/lowcode-demo/blob/main/demo-custom-initialization/src/index.tsx](https://github.com/alibaba/lowcode-demo/blob/main/demo-custom-initialization/src/index.tsx)
-
 
 ## 配置低代码编辑器
 详见[低代码扩展简述](/site/docs/guide/expand/editor/summary)章节。

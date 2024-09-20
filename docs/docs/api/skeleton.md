@@ -1,7 +1,11 @@
 ---
 title: skeleton - 面板 API
-sidebar_position: 1
+sidebar_position: 10
 ---
+> **@types** [IPublicApiSkeleton](https://github.com/alibaba/lowcode-engine/blob/main/packages/types/src/shell/api/skeleton.ts)<br/>
+> **@since** v1.0.0
+
+
 ## 模块简介
 面板 API 提供了面板扩展和管理的能力，如下图蓝色内容都是扩展出来的。
 
@@ -65,6 +69,7 @@ skeleton.add({
   props: {
     align: "left",
     icon: "wenjian",
+    title: '标题', // 图标下方展示的标题
     description: "JS 面板",
   },
   panelProps: {
@@ -86,7 +91,7 @@ Widget 形式是直接渲染在当前编辑器的对应位置上。如 demo 中�
 接入可以参考代码：
 
 ```javascript
-import {skeleton} from "@alilc/lowcode-engine";
+import { skeleton } from "@alilc/lowcode-engine";
 // 注册 logo 面板
 skeleton.add({
   area: "topArea",
@@ -115,36 +120,36 @@ skeleton.add({
   area: "leftArea",
   type: "Dock",
   name: "opener",
-  content: Opener, // Widget 组件实例
-  contentProps: {  // Widget 插件 props
-    xxx: "1",
-  },
   props: {
+    icon: Icon, // Icon 组件实例
     align: "bottom",
-  },
-  onClick: function() {
-    // 打开外部链接
-    window.open('https://lowcode-engine.cn');
-    // 显示 widget
-    skeleton.showWidget('xxx');
+    onClick: function () {
+      // 打开外部链接
+      window.open('https://lowcode-engine.cn');
+      // 显示 widget
+      skeleton.showWidget('xxx');
+    }
   }
 });
 ```
 
-## 变量（variables）
+## 方法
 
-无
-## 方法签名（functions）
-
-### 1. add
-
-```tsx
-add(config: IWidgetBaseConfig & {
-  area?: string;
-}, extraConfig?: object): IWidget | Panel;
-```
+### add
 
 往指定扩展区加入一块面板
+
+```typescript
+/**
+ * 增加一个面板实例
+ * add a new panel
+ * @param config
+ * @param extraConfig
+ * @returns
+ */
+add(config: IPublicTypeWidgetBaseConfig, extraConfig?: Record<string, any>): any;
+```
+
 
 IWidgetBaseConfig 定义如下：
 
@@ -152,7 +157,7 @@ IWidgetBaseConfig 定义如下：
 | --- | --- | --- |
 | name | 面板名称 |  |
 | area | 扩展区位置，可选值：'topArea' &#124; 'leftArea' &#124; 'rightArea' &#124; 'toolbar' &#124; 'bottomArea' &#124; 'mainArea' |  |
-| type | 面板类型，可选值：'Widget' &#124; 'PanelDock' &#124; 'Panel' | 详见前文中对**展示类型**的描述 |
+| type | 面板类型，可选值：'Widget' &#124; 'PanelDock' &#124; 'Panel' &#124; Dock | 详见前文中对**展示类型**的描述 |
 | content | 面板的实现类/节点，类型是 ReactClass &#124; ReactElement |  |
 | props | 面板属性 | align: 'top' &#124; 'bottom' &#124; 'left' &#124; 'center' &#124; 'right'; // 指定面板 icon 位置区域<br />icon: string &#124; ReactElement;  // icon 为字符串时，请确定当前 fusion 主题包中包含该 icon<br />description: string;<br />condition: Function; // 指定当前面板的显影状态 |
 | contentProps | 面板的实现类/节点的参数 |  |
@@ -160,74 +165,309 @@ IWidgetBaseConfig 定义如下：
 | index | 面板的位置，不传默认按插件注册顺序 |  |
 
 
-### 2. remove
-
-remove(config: IWidgetBaseConfig)
+### remove
 
 移除一个面板实例
 
-### 3. showPanel
+```typescript
+/**
+ * 移除一个面板实例
+ * remove a panel
+ * @param config
+ * @returns
+ */
+remove(config: IPublicTypeWidgetBaseConfig): number | undefined;
+```
 
-showPanel(name: string)
+### getPanel
+
+获取面板实例
+
+```typescript
+/**
+ * 获取面板实例
+ * @param name 面板名称
+ */
+getPanel(name: string): IPublicModelSkeletonItem | undefined;
+```
+
+相关类型：[IPublicModelSkeletonItem](https://github.com/alibaba/lowcode-engine/blob/main/packages/shell/src/model/skeleton-item.ts)
+
+@since v1.1.10
+
+### showPanel
 
 展示指定 Panel 实例
 
-### 4. hidePanel
+```typescript
+/**
+ * 展示指定 Panel 实例
+ * show panel by name
+ * @param name
+ */
+showPanel(name: string): void;
+```
 
-hidePanel(name: string)
+### hidePanel
+隐藏面板
 
-### 5. showWidget
+```typescript
+/**
+ * 隐藏面板
+ * hide panel by name
+ * @param name
+ */
+hidePanel(name: string): void;
+```
 
-showWidget(name: string)
+### showWidget
 
 展示指定 Widget 实例
 
-### 6. hideWidget
+```typescript
+/**
+ * 展示指定 Widget 实例
+ * show widget by name
+ * @param name
+ */
+showWidget(name: string): void;
+```
 
-hideWidget(name: string)
+### enableWidget
+将 widget 启用。
+```typescript
+/**
+ * 将 widget 启用
+ * enable widget
+ * @param name
+ */
+enableWidget(name: string): void;
+```
+
+### hideWidget
 
 隐藏指定 widget 实例。
 
-### 7. enableWidget
+```typescript
+/**
+ * 隐藏指定 widget 实例
+ * hide widget by name
+ * @param name
+ */
+hideWidget(name: string): void;
+```
 
-enableWidget(name: string)
-
-将 widget 启用。
-
-注：该函数将会触发全局事件 'skeleton.widget.enable'
-
-### 8. disableWidget
-
-disableWidget(name: string)
+### disableWidget
 
 将 widget 禁用掉，禁用后，所有鼠标事件都会被禁止掉。
 
 适用场景：在该面板还在进行初始化构造时，可以先禁止掉，防止用户点击报错，待初始化完成，重新启用。
 
-## 事件（events）
-### 1. onShowPanel
+```typescript
+/**
+ * 将 widget 禁用掉，禁用后，所有鼠标事件都会被禁止掉。
+ * disable widget，and make it not responding any click event.
+ * @param name
+ */
+disableWidget(name: string): void;
+```
 
-onShowPanel(listener: (...args: unknown[]) => void)
+### showArea
+显示某个 Area
+
+```typescript
+/**
+ * 显示某个 Area
+ * show area
+ * @param areaName name of area
+ */
+showArea(areaName: string): void;
+```
+
+
+### hideArea
+隐藏某个 Area
+
+```typescript
+/**
+ * 隐藏某个 Area
+ * hide area
+ * @param areaName name of area
+ */
+hideArea(areaName: string): void;
+```
+
+### getAreaItems
+
+获取某个区域下的所有面板实例
+
+```typescript
+/**
+  * 获取某个区域下的所有面板实例
+  * @param areaName IPublicTypeWidgetConfigArea
+  */
+getAreaItems(areaName: IPublicTypeWidgetConfigArea): IPublicModelSkeletonItem[] | undefined;
+```
+
+相关类型：[IPublicModelSkeletonItem](https://github.com/alibaba/lowcode-engine/blob/main/packages/shell/src/model/skeleton-item.ts)
+
+
+
+### registerConfigTransducer
+
+注册一个面板的配置转换器（transducer）。
+
+```typescript
+/**
+ * 注册一个面板的配置转换器（transducer）。
+ * Registers a configuration transducer for a panel.
+ * @param {IPublicTypeConfigTransducer} transducer 
+ *   - 要注册的转换器函数。该函数接受一个配置对象（类型为 IPublicTypeSkeletonConfig）作为输入，并返回修改后的配置对象。
+ *   - The transducer function to be registered. This function takes a configuration object 
+ * 
+ * @param {number} level 
+ *   - 转换器的优先级。优先级较高的转换器会先执行。
+ *   - The priority level of the transducer. Transducers with higher priority levels are executed first.
+ * 
+ * @param {string} [id] 
+ *   - （可选）转换器的唯一标识符。用于在需要时引用或操作特定的转换器。
+ *   - (Optional) A unique identifier for the transducer. Used for referencing or manipulating a specific transducer when needed.
+ */
+registerConfigTransducer(transducer: IPublicTypeConfigTransducer, level: number, id?: string): void;
+```
+
+使用示例
+
+```typescript
+import { IPublicModelPluginContext, IPublicTypeSkeletonConfig } from '@alilc/lowcode-types';
+
+function updatePanelWidth(config: IPublicTypeSkeletonConfig) {
+  if (config.type === 'PanelDock') {
+    return {
+      ...config,
+      panelProps: {
+        ...(config.panelProps || {}),
+        width: 240,
+      },
+    }
+  }
+
+  return config;
+}
+
+const controlPanelWidthPlugin = (ctx: IPublicModelPluginContext) => {
+  const { skeleton } = ctx;
+  (skeleton as any).registerConfigTransducer?.(updatePanelWidth, 1, 'update-panel-width');
+
+  return {
+    init() {},
+  };
+};
+
+controlPanelWidthPlugin.pluginName = 'controlPanelWidthPlugin';
+controlPanelWidthPlugin.meta = {
+  dependencies: [],
+  engines: {
+    lowcodeEngine: '^1.2.3', // 插件需要配合 ^1.0.0 的引擎才可运行
+  },
+};
+
+export default controlPanelWidthPlugin;
+```
+
+## 事件
+### onShowPanel
 
 监听 Panel 实例显示事件
 
-### 2. onHidePanel
+```typescript
+/**
+ * 监听 panel 显示事件
+ * set callback for panel shown event
+ * @param listener
+ * @returns
+ */
+onShowPanel(listener: (paneName?: string, panel?: IPublicModelSkeletonItem) => void): IPublicTypeDisposable;
+```
 
-onHidePanel(listener: (...args: unknown[]) => void)
+相关类型：[IPublicTypeDisposable](https://github.com/alibaba/lowcode-engine/blob/main/packages/types/src/shell/type/disposable.ts)
+
+### onHidePanel
 
 监听 Panel 实例隐藏事件
 
-### 3. onShowWidget
+```typescript
+/**
+ * 监听 Panel 实例隐藏事件
+ * set callback for panel hidden event
+ * @param listener
+ * @returns
+ */
+onHidePanel(listener: (paneName?: string, panel?: IPublicModelSkeletonItem) => void): IPublicTypeDisposable;
+```
 
-onShowWidget(listener: (...args: unknown[]) => void)
+相关类型：[IPublicTypeDisposable](https://github.com/alibaba/lowcode-engine/blob/main/packages/types/src/shell/type/disposable.ts)
+
+### onDisableWidget
+
+监听 Widget 实例 Disable 事件
+
+```typescript
+/**
+ * 监听 Widget 实例 Disable 事件
+ * @param listener
+ */
+onDisableWidget(listener: (paneName?: string, panel?: IPublicModelSkeletonItem) => void): IPublicTypeDisposable;
+```
+
+相关类型：[IPublicTypeDisposable](https://github.com/alibaba/lowcode-engine/blob/main/packages/types/src/shell/type/disposable.ts)
+
+### onEnableWidget
+
+监听 Widget 实例 Enable 事件
+
+```typescript
+/**
+ * 监听 Widget 实例 Enable 事件
+ * @param listener
+ */
+onEnableWidget(listener: (paneName?: string, panel?: IPublicModelSkeletonItem) => void): IPublicTypeDisposable;
+```
+
+相关类型：[IPublicTypeDisposable](https://github.com/alibaba/lowcode-engine/blob/main/packages/types/src/shell/type/disposable.ts)
+
+### onShowWidget
 
 监听 Widget 实例显示事件
 
-### 4. onHideWidget
+```typescript
+/**
+ * 监听 Widget 显示事件
+ * set callback for widget shown event
+ * @param listener
+ * @returns
+ */
+onShowWidget(listener: (paneName?: string, panel?: IPublicModelSkeletonItem) => void): IPublicTypeDisposable;
+```
 
-onHideWidget(listener: (...args: unknown[]) => void)
+相关类型：[IPublicTypeDisposable](https://github.com/alibaba/lowcode-engine/blob/main/packages/types/src/shell/type/disposable.ts)
+
+### onHideWidget
 
 监听 Widget 实例隐藏事件
+
+```typescript
+/**
+ * 监听 Widget 隐藏事件
+ * set callback for widget hidden event
+ * @param listener
+ * @returns
+ */
+onHideWidget(listener: (paneName?: string, panel?: IPublicModelSkeletonItem) => void): IPublicTypeDisposable;
+```
+
+相关类型：[IPublicTypeDisposable](https://github.com/alibaba/lowcode-engine/blob/main/packages/types/src/shell/type/disposable.ts)
+
 ## 使用示例
 
 ```typescript
@@ -299,7 +539,7 @@ skeleton.disableWidget('sourceEditor');
 import { skeleton } from '@alilc/lowcode-engine';
 
 skeleton.add({
-	name: 'bottomAreaPanelName',
+  name: 'bottomAreaPanelName',
   area: 'bottomArea',
   type: 'Panel',
   content: () => 'demoText',

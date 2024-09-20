@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { isValidElement } from 'react';
 import { isElement } from '@alilc/lowcode-utils';
-import { PropConfig } from '@alilc/lowcode-types';
+import { IPublicTypePropConfig } from '@alilc/lowcode-types';
 
 export const primitiveTypes = [
   'string',
@@ -16,8 +16,16 @@ export const primitiveTypes = [
   'any',
 ];
 
+interface LowcodeCheckType {
+  // isRequired, props, propName, componentName, location, propFullName, secret
+  (props: any, propName: string, componentName: string, ...rest: any[]): Error | null;
+  // (...reset: any[]): Error | null;
+  isRequired?: LowcodeCheckType;
+  type?: string | object;
+}
+
 // eslint-disable-next-line @typescript-eslint/ban-types
-function makeRequired(propType: any, lowcodeType: string | object) {
+function makeRequired(propType: any, lowcodeType: string | object): LowcodeCheckType {
   function lowcodeCheckTypeIsRequired(...rest: any[]) {
     return propType.isRequired(...rest);
   }
@@ -34,7 +42,7 @@ function makeRequired(propType: any, lowcodeType: string | object) {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-function define(propType: any = PropTypes.any, lowcodeType: string | object = {}) {
+function define(propType: any = PropTypes.any, lowcodeType: string | object = {}): LowcodeCheckType {
   if (!propType._inner && propType.name !== 'lowcodeCheckType') {
     propType.lowcodeType = lowcodeType;
   }
@@ -46,16 +54,18 @@ function define(propType: any = PropTypes.any, lowcodeType: string | object = {}
   return lowcodeCheckType;
 }
 
-const LowcodeTypes: any = {
+export const LowcodeTypes: any = {
   ...PropTypes,
   define,
 };
 
 (window as any).PropTypes = LowcodeTypes;
-(window as any).React.PropTypes = LowcodeTypes;
+if ((window as any).React) {
+  (window as any).React.PropTypes = LowcodeTypes;
+}
 
 // override primitive type checkers
-primitiveTypes.forEach(type => {
+primitiveTypes.forEach((type) => {
   const propType = (PropTypes as any)[type];
   if (!propType) {
     return;
@@ -91,7 +101,7 @@ LowcodeTypes.objectOf = (type: any) => {
 
 // An object that could be one of many types
 LowcodeTypes.oneOfType = (types: any[]) => {
-  const itemTypes = types.map(type => type.lowcodeType || 'any');
+  const itemTypes = types.map((type) => type.lowcodeType || 'any');
   return define(PropTypes.oneOfType(types), {
     type: 'oneOfType',
     value: itemTypes,
@@ -100,7 +110,7 @@ LowcodeTypes.oneOfType = (types: any[]) => {
 
 // An object with warnings on extra properties
 LowcodeTypes.exact = (typesMap: any) => {
-  const configs = Object.keys(typesMap).map(key => {
+  const configs = Object.keys(typesMap).map((key) => {
     return {
       name: key,
       propType: typesMap[key]?.lowcodeType || 'any',
@@ -114,7 +124,7 @@ LowcodeTypes.exact = (typesMap: any) => {
 
 // An object taking on a particular shape
 LowcodeTypes.shape = (typesMap: any = {}) => {
-  const configs = Object.keys(typesMap).map(key => {
+  const configs = Object.keys(typesMap).map((key) => {
     return {
       name: key,
       propType: typesMap[key]?.lowcodeType || 'any',
@@ -127,7 +137,7 @@ LowcodeTypes.shape = (typesMap: any = {}) => {
 };
 
 const BasicTypes = ['string', 'number', 'object'];
-export function parseProps(component: any): PropConfig[] {
+export function parseProps(component: any): IPublicTypePropConfig[] {
   if (!component) {
     return [];
   }
@@ -135,7 +145,7 @@ export function parseProps(component: any): PropConfig[] {
   const defaultProps = component.defaultProps || ({} as any);
   const result: any = {};
   if (!propTypes) return [];
-  Object.keys(propTypes).forEach(key => {
+  Object.keys(propTypes).forEach((key) => {
     const propTypeItem = propTypes[key];
     const defaultValue = defaultProps[key];
     const { lowcodeType } = propTypeItem;
@@ -173,7 +183,7 @@ export function parseProps(component: any): PropConfig[] {
     }
   });
 
-  Object.keys(defaultProps).forEach(key => {
+  Object.keys(defaultProps).forEach((key) => {
     if (result[key]) return;
     const defaultValue = defaultProps[key];
     let type: string = typeof defaultValue;
@@ -198,7 +208,7 @@ export function parseProps(component: any): PropConfig[] {
     };
   });
 
-  return Object.keys(result).map(key => result[key]);
+  return Object.keys(result).map((key) => result[key]);
 }
 
 export function parseMetadata(component: any): any {

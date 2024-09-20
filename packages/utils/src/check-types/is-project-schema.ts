@@ -1,5 +1,9 @@
-import { ProjectSchema } from '@alilc/lowcode-types';
+import { IPublicTypeProjectSchema } from '@alilc/lowcode-types';
+import { isObject } from '../is-object';
 
-export function isProjectSchema(data: any): data is ProjectSchema {
-  return data && data.componentsTree;
+export function isProjectSchema(data: any): data is IPublicTypeProjectSchema {
+  if (!isObject(data)) {
+    return false;
+  }
+  return 'componentsTree' in data;
 }

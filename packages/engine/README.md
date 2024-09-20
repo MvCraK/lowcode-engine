@@ -14,7 +14,9 @@ An enterprise-class low-code technology stack with scale-out design
 
 [![][issues-helper-image]][issues-helper-url] [![Issues need help][help-wanted-image]][help-wanted-url]
 
-[![codecov][codecov-image-url]][codecov-url]
+[![codecov][codecov-image-url]][codecov-url] [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/lowcode-workspace/awesome-lowcode-engine)
+
+[![](https://img.shields.io/badge/LowCodeEngine-Check%20Your%20Contribution-orange)](https://opensource.alibaba.com/contribution_leaderboard/details?projectValue=lowcode-engine)
 
 [npm-image]: https://img.shields.io/npm/v/@alilc/lowcode-engine.svg?style=flat-square
 [npm-url]: http://npmjs.org/package/@alilc/lowcode-engine
@@ -69,7 +71,7 @@ skeleton.add({
   area: 'topArea',
   type: 'Widget',
   name: 'logo',
-  content: YourFantaticLogo,
+  content: YourFantasticLogo,
   contentProps: {
     logo:
       'https://img.alicdn.com/tfs/TB1_SocGkT2gK0jSZFkXXcIQFXa-66-66.png',
@@ -97,27 +99,34 @@ init(document.getElementById('lce'));
 ### cdn optional method:
 #### Method 1: alifd cdn
 ```html
-https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.0/dist/js/engine-core.js
+https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.18/dist/js/engine-core.js
 
-https://alifd.alicdn.com/npm/@alilc/lowcode-react-simulator-renderer@1.0.0/dist/js/react-simulator-renderer.js
+https://alifd.alicdn.com/npm/@alilc/lowcode-react-simulator-renderer@1.0.18/dist/js/react-simulator-renderer.js
 ```
 
-#### Method 2: unpkg
+#### Method 2: uipaas cdn
 ```html
-https://unpkg.com/@alilc/lowcode-engine@1.0.0/dist/js/engine-core.js
+https://uipaas-assets.com/prod/npm/@alilc/lowcode-engine/1.0.18/dist/js/engine-core.js
 
-https://unpkg.com/@alilc/lowcode-react-simulator-renderer@1.0.0/dist/js/react-simulator-renderer.js
+https://uipaas-assets.com/prod/npm/@alilc/lowcode-react-simulator-renderer/1.0.18/dist/js/react-simulator-renderer.js
 ```
 
-#### Method 3: jsdelivr
+#### Method 3: unpkg
 ```html
-https://cdn.jsdelivr.net/npm/@alilc/lowcode-engine@1.0.0/dist/js/engine-core.js
+https://unpkg.com/@alilc/lowcode-engine@1.0.18/dist/js/engine-core.js
 
-https://cdn.jsdelivr.net/npm/@alilc/lowcode-react-simulator-renderer@1.0.0/dist/js/react-simulator-renderer.js
+https://unpkg.com/@alilc/lowcode-react-simulator-renderer@1.0.18/dist/js/react-simulator-renderer.js
 ```
 
-#### Method 4: Use your own cdn
-Pass the files under packages/engine/dist and packages/(react|rax)-simulator-renderer/dist in the source code to your cdn provider
+#### Method 4: jsdelivr
+```html
+https://cdn.jsdelivr.net/npm/@alilc/lowcode-engine@1.0.18/dist/js/engine-core.js
+
+https://cdn.jsdelivr.net/npm/@alilc/lowcode-react-simulator-renderer@1.0.18/dist/js/react-simulator-renderer.js
+```
+
+#### Method 5: Use your own cdn
+Pass the files under packages/engine/dist and packages/react-simulator-renderer/dist in the source code to your cdn provider
 
 ## 🔗 Related Links
 
